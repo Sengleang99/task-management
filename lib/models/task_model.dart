@@ -31,10 +31,16 @@ class Task {
     this.reminder,
   });
 
+  /// Use when reading directly from a Firestore DocumentSnapshot
   factory Task.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    return Task.fromMap(data, doc.id);
+  }
+
+  /// Use this for general purpose: accepts a data map + doc ID
+  factory Task.fromMap(Map<String, dynamic> data, String id) {
     return Task(
-      taskId: doc.id,
+      taskId: id,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       dueDate: (data['dueDate'] as Timestamp).toDate(),
@@ -45,16 +51,17 @@ class Task {
       userId: data['userId'] ?? '',
       projectId: data['projectId'],
       tags: List<String>.from(data['tags'] ?? []),
-      completedAt: data['completedAt'] != null 
-          ? (data['completedAt'] as Timestamp).toDate() 
+      completedAt: data['completedAt'] != null
+          ? (data['completedAt'] as Timestamp).toDate()
           : null,
-      reminder: data['reminder'] != null 
-          ? (data['reminder'] as Timestamp).toDate() 
+      reminder: data['reminder'] != null
+          ? (data['reminder'] as Timestamp).toDate()
           : null,
     );
   }
 
-  Map<String, dynamic> toFirestore() {
+  /// Converts Task object to a Firestore-compatible map
+  Map<String, dynamic> toMap() {
     return {
       'title': title,
       'description': description,
@@ -66,7 +73,8 @@ class Task {
       'userId': userId,
       'projectId': projectId,
       'tags': tags,
-      'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
+      'completedAt':
+          completedAt != null ? Timestamp.fromDate(completedAt!) : null,
       'reminder': reminder != null ? Timestamp.fromDate(reminder!) : null,
     };
   }
